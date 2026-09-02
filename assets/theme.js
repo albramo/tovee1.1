@@ -140,9 +140,15 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       document.addEventListener('focusout', theme.a11y.trapFocusHandlers.focusout);
       document.addEventListener('focusin', theme.a11y.trapFocusHandlers.focusin);
 
-      elementToFocus.focus();
+      if (elementToFocus && (!theme.config.isTouch || (elementToFocus.tagName === 'INPUT' || elementToFocus.tagName === 'TEXTAREA'))) {
+        try {
+          if (elementToFocus.offsetWidth > 5 && elementToFocus.offsetHeight > 5) {
+            elementToFocus.focus();
+          }
+        } catch(e) {}
+      }
 
-      if (elementToFocus.tagName === 'INPUT' && ['search', 'text', 'email', 'url'].includes(elementToFocus.type) && elementToFocus.value) {
+      if (elementToFocus && elementToFocus.tagName === 'INPUT' && ['search', 'text', 'email', 'url'].includes(elementToFocus.type) && elementToFocus.value) {
         elementToFocus.setSelectionRange(0, elementToFocus.value.length);
       }
     },
@@ -554,7 +560,7 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       }
 
       load() {
-        if (theme.config.isTouch || document.body.getAttribute('data-button-hover') === 'none') return;
+        if (theme.config.isTouch || (window.matchMedia && window.matchMedia('(hover: none)').matches) || window.innerWidth < 990 || document.body.getAttribute('data-button-hover') === 'none') return;
 
         this.container.addEventListener('mouseenter', this.onEnterHandler.bind(this));
         this.container.addEventListener('mouseleave', this.onLeaveHandler.bind(this));
@@ -600,7 +606,7 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       }
 
       load() {
-        if (theme.config.isTouch || document.body.getAttribute('data-button-hover') === 'none') return;
+        if (theme.config.isTouch || (window.matchMedia && window.matchMedia('(hover: none)').matches) || window.innerWidth < 990 || document.body.getAttribute('data-button-hover') === 'none') return;
 
         this.container.addEventListener('mousemove', this.onMoveHandler.bind(this));
         this.container.addEventListener('mouseleave', this.onLeaveHandler.bind(this));
@@ -1000,32 +1006,11 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
   });
 })();
 
-// Prevent vertical scroll while using flickity sliders
+// Perf: Use CSS touch-action instead of JS preventDefault to avoid Input delay 286ms
+// Flickity drag now handled by browser compositor via touch-action: pan-y
 new theme.initWhenVisible(() => {
-  var e = !1;
-  var t;
-
-  document.body.addEventListener('touchstart', function (i) {
-    if (!i.target.closest('.flickity-slider')) {
-      return e = !1;
-      void 0;
-    }
-    e = !0;
-    t = {
-      x: i.touches[0].pageX,
-      y: i.touches[0].pageY
-    }
-  }, theme.supportsPassive ? { passive: true } : false);
-
-  document.body.addEventListener('touchmove', function (i) {
-    if (e && i.cancelable) {
-      var n = {
-        x: i.touches[0].pageX - t.x,
-        y: i.touches[0].pageY - t.y
-      };
-      Math.abs(n.x) > Flickity.defaults.dragThreshold && i.preventDefault()
-    }
-  }, theme.supportsPassive ? { passive: false } : false);
+  // No JS blocking - CSS handles it. Keep minimal listener for legacy fallback only if needed
+  // touch-action: pan-y on .flickity-viewport allows vertical scroll + horizontal drag without JS
 });
 
 class LoadingBar extends HTMLElement {
@@ -1264,19 +1249,21 @@ class HoverButton extends HTMLButtonElement {
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
-    if (newValue === 'true') {
-      Motion.timeline([
-        [this.contentElement, { opacity: 0 }, { duration: 0.15 }],
-        [this.animationElement, { opacity: 1 }, { duration: 0.15 }]
-      ]);
-      Motion.animate(this.animationElement.children, { transform: ['scale(1.6)', 'scale(0.6)'] }, { duration: 0.35, delay: Motion.stagger(0.35 / 2), direction: 'alternate', repeat: Infinity });
-    }
-    else {
-      Motion.timeline([
-        [this.animationElement, { opacity: 0 }, { duration: 0.15 }],
-        [this.contentElement, { opacity: 1 }, { duration: 0.15 }]
-      ]);
-    }
+    requestAnimationFrame(() => {
+      if (newValue === 'true') {
+        Motion.timeline([
+          [this.contentElement, { opacity: 0 }, { duration: 0.15 }],
+          [this.animationElement, { opacity: 1 }, { duration: 0.15 }]
+        ]);
+        Motion.animate(this.animationElement.children, { transform: ['scale(1.6)', 'scale(0.6)'] }, { duration: 0.35, delay: Motion.stagger(0.35 / 2), direction: 'alternate', repeat: Infinity });
+      }
+      else {
+        Motion.timeline([
+          [this.animationElement, { opacity: 0 }, { duration: 0.15 }],
+          [this.contentElement, { opacity: 1 }, { duration: 0.15 }]
+        ]);
+      }
+    });
   }
 }
 customElements.define('hover-button', HoverButton, { extends: 'button' });
@@ -1782,7 +1769,10 @@ class ModalElement extends HTMLElement {
   }
 
   get focusElement() {
-    return this.querySelector('button');
+    const visibleBtn = Array.from(this.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])')).find(el => {
+      return el.offsetWidth > 5 && el.offsetHeight > 5;
+    });
+    return visibleBtn || this.querySelector('button') || this;
   }
 
   connectedCallback() {
@@ -1879,7 +1869,15 @@ class ModalElement extends HTMLElement {
     if (!this.open) return;
 
     this.beforeHide();
-    this.resetGesture();
+    // Perf: Double rAF - let browser start close animation before heavy cleanup
+    // resetGesture does style writes - defer to next frame to avoid blocking INP Processing 187ms
+    const doReset = () => this.resetGesture();
+    if (this.gesture) {
+      requestAnimationFrame(() => requestAnimationFrame(doReset));
+    } else {
+      this.resetGesture();
+    }
+    // Defer body scroll unlock heavy work until after presentation
     this.removeAttribute('open');
 
     return theme.utils.waitForEvent(this, this.events.afterHide);
@@ -1893,6 +1891,11 @@ class ModalElement extends HTMLElement {
 
     this.beforeShow();
     this.activeElement = activeElement;
+    // Instant feedback: add opening class immediately for perceived speed
+    if (animate && this.overlay) {
+      this.overlay.style.willChange = 'opacity';
+      if (this.gestureWrap) this.gestureWrap.style.willChange = 'transform';
+    }
     this.setAttribute('open', animate ? '' : 'immediate');
 
     if (this.shouldLock) {
@@ -1906,45 +1909,76 @@ class ModalElement extends HTMLElement {
   beforeShow() { }
 
   afterHide() {
-    setTimeout(() => {
-      theme.a11y.removeTrapFocus(this.activeElement);
+    // Perf: Clean will-change after animation - use double rAF to avoid layout thrash
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.overlay) this.overlay.style.willChange = '';
+        if (this.gestureWrap) this.gestureWrap.style.willChange = '';
+        const inner = this.querySelector('.drawer__inner');
+        if (inner) inner.style.willChange = '';
+      });
+    });
+    // Defer trapFocus cleanup + body scroll lock to idle - reduces Processing 187ms
+    const doCleanup = () => {
+      try { theme.a11y.removeTrapFocus(this.activeElement); } catch(e){}
       if (this.shouldLock) {
         lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) - 1);
-
         document.body.classList.toggle(this.classes.open, lockLayerCount.get(ModalElement) > 0);
       }
-    });
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doCleanup, { timeout: 500 });
+    } else {
+      setTimeout(doCleanup, 80);
+    }
   }
   afterShow() {
-    theme.a11y.trapFocus(this, this.focusElement);
+    // Perf: Critical - body lock must be sync for scroll, but trapFocus deferred
     if (this.shouldLock) {
       lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) + 1);
-
       document.body.classList.remove(this.classes.opening);
       document.body.classList.add(this.classes.open);
+    }
+    // Clean will-change after animation via double rAF
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.overlay) this.overlay.style.willChange = 'auto';
+        const inner = this.querySelector('.drawer__inner');
+        if (inner) inner.style.willChange = 'auto';
+      });
+    });
+    const doTrap = () => {
+      try { theme.a11y.trapFocus(this, this.focusElement); } catch(e) {}
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doTrap, { timeout: 300 });
+    } else {
+      requestAnimationFrame(() => setTimeout(doTrap, 60));
     }
   }
 
   showTransition() {
-    setTimeout(() => {
-      this.setAttribute('active', '');
-    }, 75);
+    // Perf: Instant feedback - set active on next frame (16ms) instead of 60ms for faster perceived open
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.hasAttribute('open')) this.setAttribute('active', '');
+      });
+    });
     return new Promise((resolve) => {
-      const computedStyle = window.getComputedStyle(this.overlay);
-      const hasTransition = computedStyle.transitionProperty !== 'none' && parseFloat(computedStyle.transitionDuration) > 0;
-
-      if (!hasTransition) {
-        resolve();
-        return;
-      }  
-                          
-      this.overlay.addEventListener('transitionend', resolve, { once: true });
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      this.overlay.addEventListener('transitionend', finish, { once: true });
+      // Fallback 500ms covers new .38s drawer + .4s overlay
+      setTimeout(finish, 550);
     });
   }
   hideTransition() {
     this.removeAttribute('active');
     return new Promise((resolve) => {
-      this.overlay.addEventListener('transitionend', resolve, { once: true });
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      this.overlay.addEventListener('transitionend', finish, { once: true });
+      setTimeout(finish, 700);
     });
   }
 
@@ -2039,12 +2073,7 @@ class ModalElement extends HTMLElement {
   }
 
   removeTransition(node, transition) {
-    const match = node.style.transition.match(new RegExp('(?:^|,)\\s*' + transition + '(?:$|\\s|,)[^,]*', 'i'));
-    if (match) {
-      const transitionArray = node.style.transition.split('');
-      transitionArray.splice(match.index, match[0].length);
-      node.style.transition = transitionArray.join('');
-    }
+    if (node) node.style.transition = 'none';
   }
 
   whichTransitionEvent() {
@@ -2502,7 +2531,31 @@ class RecentlyViewed extends HTMLElement {
       return;
     }
 
-    Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+    // Perf: If inside cart-drawer, defer fetch until after drawer animation
+    // Otherwise immediate fetch via inView causes 100-300ms Processing during open
+    const drawer = this.closest('cart-drawer');
+    if (drawer) {
+      let initialized = false;
+      const schedule = () => {
+        if (initialized) return;
+        initialized = true;
+        const run = () => { try { this.init(); } catch(e){} };
+        if ('requestIdleCallback' in window) {
+          setTimeout(() => requestIdleCallback(run, {timeout:800}), 700);
+        } else {
+          setTimeout(run, 800);
+        }
+      };
+      if (drawer.hasAttribute('open')) {
+        schedule();
+      } else {
+        drawer.addEventListener('drawer:afterShow', schedule, {once:true});
+        // Fallback inView but only if drawer open
+        Motion.inView(this, () => { if(drawer.hasAttribute('open') && !initialized) schedule(); }, { margin: '600px 0px 600px 0px' });
+      }
+    } else {
+      Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+    }
   }
 
   init() {
@@ -2552,30 +2605,35 @@ customElements.define('recently-viewed', RecentlyViewed);
 class ProductRecommendations extends HTMLElement {
   constructor() {
     super();
+    this._recInitialized = false;
 
-    // For cart drawer, ensure fetch even when drawer is hidden initially - use inView with larger margin and also trigger on drawer open
+    // For cart drawer, start fetch as soon as drawer starts opening
     if (this.closest('cart-drawer')) {
-      // If drawer already open, fetch immediately, otherwise wait for inView
-      setTimeout(() => {
-        if (this.closest('cart-drawer')?.hasAttribute('open') || this.closest('cart-drawer')?.hasAttribute('active')) {
-          this.init();
+      const drawer = this.closest('cart-drawer');
+      const scheduleInit = () => {
+        if (this._recInitialized) return;
+        this._recInitialized = true;
+        const run = () => { try { this.init(); } catch(e){} };
+        requestAnimationFrame(() => setTimeout(run, 80));
+      };
+      if (drawer?.hasAttribute('open') || drawer?.hasAttribute('active')) {
+        scheduleInit();
+      } else {
+        if (drawer) {
+          drawer.addEventListener('drawer:afterShow', scheduleInit, { once: true });
+          const observer = new MutationObserver(() => {
+            if (drawer.hasAttribute('open') && !this._recInitialized) {
+              observer.disconnect();
+              scheduleInit();
+            }
+          });
+          observer.observe(drawer, { attributes: true, attributeFilter: ['open'] });
         } else {
-          Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
-          // Also listen for drawer open to trigger fetch
-          const drawer = this.closest('cart-drawer');
-          if (drawer) {
-            const observer = new MutationObserver(() => {
-              if (drawer.hasAttribute('open')) {
-                this.init();
-                observer.disconnect();
-              }
-            });
-            observer.observe(drawer, { attributes: true, attributeFilter: ['open', 'active'] });
-          }
+          Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
         }
-      }, 50);
+      }
     } else {
-      Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+      Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
     }
   }
 
@@ -6895,36 +6953,44 @@ class SlideshowElement extends HTMLElement {
     this.initialized = true;
 
     const that = this;
-    if (this.items.length > 1) {
-      this.slider = new Flickity(this, {
-        accessibility: false,
-        pageDots: false,
-        prevNextButtons: false,
-        wrapAround: true,
-        rightToLeft: theme.config.rtl,
-        autoPlay: this.autoplay ? this.speed : false,
-        adaptiveHeightProperty: this.adaptiveHeightProperty,
-        on: {
-          ready: function() {
-            const { selectedElement } = this;
-            that.onReady(selectedElement);
+    const doInit = () => {
+      if (that.items.length > 1) {
+        that.slider = new Flickity(that, {
+          accessibility: false,
+          pageDots: false,
+          prevNextButtons: false,
+          wrapAround: true,
+          rightToLeft: theme.config.rtl,
+          autoPlay: that.autoplay ? that.speed : false,
+          adaptiveHeightProperty: that.adaptiveHeightProperty,
+          on: {
+            ready: function() {
+              const { selectedElement } = this;
+              that.onReady(selectedElement);
+            }
           }
-        }
-      });
+        });
 
-      this.slider.on('change', this.onChange.bind(this));
-      this.addEventListener('slider:previous', () => this.slider.previous());
-      this.addEventListener('slider:next', () => this.slider.next());
-      this.addEventListener('slider:play', () => this.slider.playPlayer());
-      this.addEventListener('slider:pause', () => this.slider.pausePlayer());
+        that.slider.on('change', that.onChange.bind(that));
+        that.addEventListener('slider:previous', () => that.slider.previous());
+        that.addEventListener('slider:next', () => that.slider.next());
+        that.addEventListener('slider:play', () => that.slider.playPlayer());
+        that.addEventListener('slider:pause', () => that.slider.pausePlayer());
   
-      if (Shopify.designMode) {
-        this.addEventListener('shopify:block:select', (event) => this.slider.select(this.items.indexOf(event.target)));
+        if (Shopify.designMode) {
+          that.addEventListener('shopify:block:select', (event) => that.slider.select(that.items.indexOf(event.target)));
+        }
       }
-    }
-    else if (this.items.length === 1) {
-      const selectedElement = this.firstChild;
-      that.onReady(selectedElement);
+      else if (that.items.length === 1) {
+        const selectedElement = that.firstChild;
+        that.onReady(selectedElement);
+      }
+    };
+    // Perf: Defer Flickity to idle to avoid Input delay 286ms blocking main thread
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doInit, { timeout: 600 });
+    } else {
+      setTimeout(doInit, 80);
     }
   }
 
