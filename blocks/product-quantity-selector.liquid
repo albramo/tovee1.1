@@ -25,7 +25,7 @@
 
     <quantity-input class="quantity inline-flex relative" data-section-id="{{ section.id }}" data-product-id="{{ product_id }}">
       <button type="button" name="minus" class="quantity__button" aria-label="{{ 'products.quantity.decrease' | t: product: product_item.title | escape }}">
-        {%- render 'icon', icon: 'chevron-left', size: 'sm', class: 'stroke-2 transform' -%}
+        {%- render 'icon', icon: 'minus', size: 'xs' -%}
       </button>
       <input
         id="Quantity-{{ section.id }}-{{ product_id }}"
@@ -44,7 +44,7 @@
         form="{{ product_form_id }}"
       >
       <button type="button" name="plus" class="quantity__button" aria-label="{{ 'products.quantity.increase' | t: product: product_item.title | escape }}">
-        {%- render 'icon', icon: 'chevron-right', size: 'sm', class: 'stroke-2 transform' -%}
+        {%- render 'icon', icon: 'plus-2', size: 'xs' -%}
       </button>
     </quantity-input>
 
@@ -59,6 +59,16 @@
     {%- endif -%}
   </div>
 {%- endif -%}
+
+{% stylesheet %}
+  /* Make product quantity plus/minus smaller */
+  .ekko-product-quantity .quantity__button .icon,
+  .product-form__buttons .quantity__button .icon,
+  quantity-input.quantity .quantity__button .icon {
+    width: var(--sp-3) !important;
+    height: var(--sp-3) !important;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {

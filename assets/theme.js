@@ -1,6 +1,6 @@
 /*
 @license
-  Ekko Theme by Ekko (https://shopifysellers.com/)
+  Kite Theme by vibe wab
   Access unminified JS in assets/theme.js
 
   Use this event listener to run your own JS outside of this file.
@@ -37,7 +37,7 @@ try {
 } catch (e) {}
 
 document.documentElement.classList.add(theme.config.isTouch ? 'touch' : 'no-touch');
-console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') by Ekko | Learn more at https://shopifysellers.com/');
+console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') by vibe wab');
 
 (function () {
   /*============================================================================
@@ -2614,9 +2614,8 @@ class ProductRecommendations extends HTMLElement {
           if (!isFallback) {
             return tryFallback();
           } else {
-            // No products found even with fallback -> hide as requested
-            this.setAttribute('hidden', '');
-            this.closest('.recommendations-section')?.remove();
+            // No products found even with fallback -> keep visible
+            this.removeAttribute('hidden');
             this.dispatchEvent(new CustomEvent('is-empty'));
           }
         })
@@ -5325,7 +5324,7 @@ class ProductForm extends HTMLFormElement {
   }
 
   get bundles() {
-    return Array.from(document.querySelectorAll(`[form="${this.getAttribute('id')}"] input[name="bundles"]:checked`));
+    return Array.from(document.querySelectorAll(`input[form="${this.getAttribute('id')}"][name="bundles"]:checked`));
   }
 
   prepareFormData(formData) {
