@@ -6965,31 +6965,24 @@ ol {
 
   .drawer .horizontal-product__quantity {
     flex-shrink: 0;
-    max-width: 3rem;
   }
 
   .drawer .cart-quantity {
-    height: var(--sp-8);
-    width: var(--sp-10);
+    height: var(--sp-9);
+    width: var(--sp-12);
   }
 
   .drawer .cart-quantity .quantity__input {
     font-size: var(--text-xs);
-    padding-inline: 0;
   }
 
   .drawer .cart-quantity .quantity__buttons {
-    width: var(--sp-4);
+    width: var(--sp-5);
   }
 
   .drawer .cart-quantity .quantity__button {
-    height: var(--sp-4);
-    padding-inline-end: var(--sp-1);
-  }
-
-  .drawer .cart-quantity .quantity__button .icon {
-    width: 6px;
-    height: 6px;
+    height: var(--sp-5);
+    padding-inline-end: var(--sp-2);
   }
 }
 
@@ -16045,4 +16038,30 @@ video-media:not([playing]) .deferred-poster .play-button .icon:last-child:not(:o
     max-width: var(--ekko-custom-content-width);
     margin-inline: auto;
   }
+}
+
+/* Fixed 1:1 Product Card Image Container & White Background Alignment */
+.product-card .media,
+.product-card__media .media,
+.product-card__media {
+  background-color: #ffffff !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.product-card .media > img,
+.product-card__media .media > img,
+.product-card .media img,
+.product-card__media img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #ffffff !important;
 }

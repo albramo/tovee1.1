@@ -22,8 +22,8 @@ if (!customElements.get('mobile-dock')) {
         this.initialized = true;
         this.setAttribute('loaded', '');
     
-        this.detectForHeader();
-        this.detectForFooter();
+        this.section.classList.add('active');
+        this.classList.add('active');
         setTimeout(this.setHeight.bind(this));
         document.addEventListener('matchSmall', this.setHeight.bind(this));
     
