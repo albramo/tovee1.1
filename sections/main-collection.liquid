@@ -10,6 +10,12 @@
     --section-padding-top: {{ section.settings.padding_top }}px;
     --section-padding-bottom: {{ section.settings.padding_bottom }}px;
     --ekko-main-collection-width: {{ section.settings.custom_content_width }}vw;
+    {% if section.settings.card_gap_mobile != blank %}
+      --card-grid-gap-mobile: {{ section.settings.card_gap_mobile }}px;
+    {% endif %}
+    {% if section.settings.card_gap != blank %}
+      --card-grid-gap-desktop: {{ section.settings.card_gap }}px;
+    {% endif %}
   }
 
   @media screen and (min-width: 750px) {
@@ -320,6 +326,26 @@
           "label": "t:sections.global.settings.columns_mobile.options__2.label"
         }
       ]
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Card gap - desktop",
+      "min": 4,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "card_gap_mobile",
+      "label": "Mobile card spacing",
+      "min": 3,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 5
     },
     {
       "type": "select",
