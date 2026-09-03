@@ -1119,7 +1119,7 @@ class StickyHeader extends CustomHeader {
   connectedCallback() {
     super.connectedCallback();
 
-    this.currentScrollTop = 0;
+    this.currentScrollTop = window.scrollY;
     this.firstScrollTop = window.scrollY;
     this.headerBounds = this.headerSection.getBoundingClientRect();
 
@@ -1160,16 +1160,17 @@ class StickyHeader extends CustomHeader {
       document.dispatchEvent(new CustomEvent('header:scrolled', { bubbles: true, detail: { scrolled: false } }));
     }
 
-    if (scrollTop > (this.headerBounds.bottom + this.firstScrollTop + 100)) {
-      if (scrollTop > this.currentScrollTop) {
+    // On-scroll-up: hide on down, show on up (no deadzone - touch deltas are 1-3px). Always: never hide.
+    if (this.isAlwaysSticky) {
+      this.headerSection.classList.remove('header-hidden');
+    } else {
+      if (scrollTop <= 100) {
+        this.headerSection.classList.remove('header-hidden');
+      } else if (scrollTop > this.currentScrollTop) {
         this.headerSection.classList.add('header-hidden');
-      }
-      else {
+      } else if (scrollTop < this.currentScrollTop) {
         this.headerSection.classList.remove('header-hidden');
       }
-    }
-    else {
-      this.headerSection.classList.remove('header-hidden');
     }
 
     this.currentScrollTop = scrollTop;

@@ -47,6 +47,9 @@
       "discount_applied": "تم تطبيق الخصم على إجمالي الطلب!",
       "discount_removed": "تمت إزالة الخصم - الرجاء إعادة إدخال الكود"
     },
+    "policies": {
+      "heading": "السياسات"
+    },
     "accessibility": {
       "close": "إغلاق",
       "skip_to_content": "تخطي إلى المحتوى"
