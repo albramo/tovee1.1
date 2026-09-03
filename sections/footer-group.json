@@ -98,7 +98,7 @@
           "settings": {
             "logo": "",
             "logo_height": 50,
-            "show_social": false,
+            "show_social": true,
             "enable_follow_on_shop": false
           }
         },
@@ -160,8 +160,7 @@
         "padding_bottom": 72,
         "divider": false,
         "full_width": false,
-        "rounded": true,
-        "enable_parallax": true
+        "rounded": true
       }
     },
     "footer-copyright": {
@@ -179,8 +178,7 @@
         "gradient_background": "",
         "divider": false,
         "full_width": true,
-        "rounded": true,
-        "enable_parallax": true
+        "rounded": true
       }
     }
   },

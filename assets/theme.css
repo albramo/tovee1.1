@@ -8319,8 +8319,7 @@ details.active .drawer__promotions .mega-menu__item,
 
 @media screen and (min-width: 768px) {
   .footer-group {
-    position: absolute;
-    z-index: -1;
+    position: static;
   }
 
   .has-modal-opening .footer-group,

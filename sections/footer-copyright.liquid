@@ -6,7 +6,7 @@
   }
 </style>
 
-<div class="section{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded{% endif %}"{% if section.settings.enable_parallax %} is="footer-parallax"{% endif %}>
+<div class="section{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded{% endif %}">
   <div class="footer-copyright page-width{% if section.settings.full_width %} page-width--full{% endif %} w-full flex flex-col items-center justify-between gap-4 lg:gap-0 lg:flex-row relative">
     <div class="rte credits text-center">
       {%- liquid
@@ -23,19 +23,6 @@
         endif
         echo powered_by_link
       -%}
-      {%- if section.settings.show_policy -%}
-        <ul class="flex flex-wrap gap-3 justify-center lg:justify-start">
-          {%- for policy in shop.policies -%}
-            {%- if policy != blank -%}
-              <li>
-                <small>
-                  <a href="{{ policy.url }}" class="block reversed-link">{{ policy.title }}</a>
-                </small>
-              </li>
-            {%- endif -%}
-          {%- endfor -%}
-        </ul>
-      {%- endif -%}
     </div>
 
     {%- liquid
@@ -156,17 +143,6 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer-copyright.settings.header__policy.content",
-      "info": "t:sections.footer-copyright.settings.header__policy.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_policy",
-      "label": "t:sections.footer-copyright.settings.show_policy.label",
-      "default": false
-    },
-    {
-      "type": "header",
       "content": "t:sections.footer-copyright.settings.header__payment_methods.content"
     },
     {
@@ -240,12 +216,6 @@
       "id": "rounded",
       "default": false,
       "label": "t:sections.global.settings.rounded.label"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_parallax",
-      "label": "t:sections.global.settings.enable_parallax.label",
-      "default": true
     }
   ],
   "enabled_on": {

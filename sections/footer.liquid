@@ -13,7 +13,7 @@
   endif
 -%}
 
-<div class="section section--padding{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded{% endif %}"{% if section.settings.enable_parallax %} is="footer-parallax"{% endif %}>
+<div class="section section--padding{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded{% endif %}">
   <footer class="footer{% if enable_footer_info %}{% if section.settings.invert_newsletter_others %} footer--inverted{% endif %}{% else %} footer--no-info{% endif %} page-width{% if section.settings.full_width %} page-width--full{% endif %} relative grid" data-width="{% if section.settings.full_width %}full{% else %}page{% endif %}">
     {%- if section.blocks.size > 0 -%}
       <div class="footer__left flex flex-col md:flex-row gap-10">
@@ -26,13 +26,37 @@
 
         <div class="footer__accordions flex flex-wrap flex-col md:flex-row md:grow md:gap-12">
           {%- liquid
+            assign policies_count = 0
+            for policy in shop.policies
+              unless policy == blank
+                assign policies_count = policies_count | plus: 1
+              endunless
+            endfor
+          -%}
+          {%- if policies_count > 0 -%}
+            <details class="details active" is="footer-details">
+              <summary class="details__summary flex items-center justify-between gap-2 cursor-pointer">
+                <span class="heading text-base-2xl font-medium lg:font-heading">{{ section.settings.policies_heading | escape }}</span>
+                {%- render 'icon', icon: 'chevron-up' -%}
+              </summary>
+              <div class="details__content">
+                <ul class="flex flex-col gap-3">
+                  {%- for policy in shop.policies -%}
+                    {%- if policy != blank -%}
+                      <li class="inline-flex">
+                        <a href="{{ policy.url }}" class="block reversed-link text-sm-lg leading-tight">{{ policy.title }}</a>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </details>
+          {%- endif -%}
+          {%- liquid
             for block in section.blocks
               case block.type
                 when 'link_list'
                   render 'footer-menu', block: block
-
-                when 'policies'
-                  render 'footer-policies', block: block
 
                 when 'text'
                   render 'footer-text', block: block
@@ -86,9 +110,6 @@
     {%- endif -%}
   </footer>
 
-  {%- if section.settings.enable_parallax -%}
-    <parallax-overlay class="footer-overlay hidden md:block z-20 absolute left-0 top-0 w-full pointer-events-none" data-target="height" data-start="100%" data-stop="0%"></parallax-overlay>
-  {%- endif -%}
 </div>
 
 {% schema %}
@@ -192,6 +213,12 @@
       "label": "t:sections.footer.settings.enable_follow_on_shop.label"
     },
     {
+      "type": "text",
+      "id": "policies_heading",
+      "default": "Policies",
+      "label": "t:sections.global.settings.heading.label"
+    },
+    {
       "type": "header",
       "content": "t:sections.global.settings.header__colors.content",
       "info": "t:sections.global.settings.header__colors.info"
@@ -271,12 +298,6 @@
       "id": "rounded",
       "default": false,
       "label": "t:sections.global.settings.rounded.label"
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_parallax",
-      "label": "t:sections.global.settings.enable_parallax.label",
-      "default": true
     }
   ],
   "blocks": [
@@ -311,39 +332,6 @@
           "id": "enable_follow_on_shop",
           "default": false,
           "label": "t:sections.footer.settings.enable_follow_on_shop.label"
-        }
-      ]
-    },
-    {
-      "type": "policies",
-      "name": "t:sections.footer.blocks.policies.name",
-      "settings": [
-        {
-          "type": "text",
-          "id": "heading",
-          "label": "t:sections.global.settings.heading.label",
-          "info": "t:sections.global.settings.optional.label",
-          "default": "Policies"
-        },
-        {
-          "type": "range",
-          "id": "container_width",
-          "label": "t:sections.footer.blocks.global.settings.container_width.label",
-          "default": 50,
-          "min": 15,
-          "max": 95,
-          "step": 1,
-          "unit": "%"
-        },
-        {
-          "type": "header",
-          "content": "t:sections.global.settings.header__mobile.content"
-        },
-        {
-          "type": "checkbox",
-          "id": "opened",
-          "default": false,
-          "label": "t:sections.footer.blocks.global.settings.opened.label"
         }
       ]
     },
