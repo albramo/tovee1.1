@@ -1,3 +1,17 @@
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+#page,
+main,
+.main-content {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
 *,
 *::before,
 *::after {
@@ -3011,7 +3025,14 @@ summary {
 
 .loading-bar {
   background-color: rgb(var(--color-foreground));
-  z-index: 50
+  z-index: 50;
+  contain: strict !important;
+  pointer-events: none !important;
+}
+
+loading-bar[hidden],
+.loading-bar[hidden] {
+  display: none !important;
 }
 
 .loading-bar .icon {
@@ -5998,8 +6019,7 @@ ol {
   color: rgb(var(--color-foreground));
   background-color: rgb(var(--color-background));
   transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0);
-  will-change: transform;
-  contain: layout style paint;
+  contain: layout;
   backface-visibility: hidden;
 }
 
@@ -6024,7 +6044,17 @@ ol {
 }
 
 .loaded .drawer__inner {
-  transition: transform .38s cubic-bezier(.32, .72, 0, 1)
+  transition: transform .38s cubic-bezier(.32, .72, 0, 1);
+}
+
+@media screen and (max-width: 639px) {
+  .loaded .drawer__inner {
+    transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .drawer .overlay {
+    transition: opacity 0.15s linear;
+  }
 }
 
 .drawer[open] {
@@ -6073,191 +6103,9 @@ ol {
   --tw-scale-y: -1;
 }
 
-/*! drawer */
-
-.modal-scrollbar-measure {
-  display: block;
-  position: absolute;
-  inset-block-start: -100rem;
-  width: 5rem;
-  height: 5rem;
-  overflow: scroll;
-}
-
-.has-modal-opening,
-.has-modal-open {
-  overflow: hidden;
-  padding-inline-end: var(--scrollbar-width);
-}
-
-.touch .has-modal-open {
-  touch-action: none
-}
-
-.drawer {
-  --color-foreground: var(--color-drawer-text);
-  --color-background: var(--color-drawer-background);
-  --color-overlay: var(--color-drawer-overlay);
-  --color-button-background: var(--color-drawer-button-background);
-  --color-button-gradient: var(--color-drawer-button-gradient);
-  --color-button-border: var(--color-drawer-button-background);
-  --color-button-text: var(--color-drawer-button-text);
-  --color-border: var(--color-foreground)/ 0.1;
-  --color-border-dark: var(--color-foreground)/ 0.4;
-  --color-border-light: var(--color-foreground)/ 0.06;
-}
-
-.drawer[hidden] {
-  content-visibility: hidden;
-}
-
-.drawer .overlay {
-  cursor: none;
-  transition: .42s cubic-bezier(.32, .72, 0, 1);
-  transition-property: opacity, visibility;
-}
-
-.drawer--start .overlay {
-  background: linear-gradient(to var(--transform-origin-start), rgb(var(--color-overlay)/ 0.2) 20%, rgb(var(--color-overlay)/ 0.5) 60%)
-}
-
-.drawer--end .overlay {
-  background: linear-gradient(to var(--transform-origin-end), rgb(var(--color-overlay)/ 0.2) 20%, rgb(var(--color-overlay)/ 0.5) 60%)
-}
-
-@media screen and (min-width: 1280px) {
-  .drawer--start .overlay {
-    background: linear-gradient(to var(--transform-origin-start), rgb(var(--color-overlay)/ 0.2) 40%, rgb(var(--color-overlay)/ 0.5) 80%)
-  }
-
-  .drawer--end .overlay {
-    background: linear-gradient(to var(--transform-origin-end), rgb(var(--color-overlay)/ 0.2) 40%, rgb(var(--color-overlay)/ 0.5) 80%)
-  }
-}
-
-.drawer__header {
-  border-block-end: 1px solid rgb(var(--color-border-light));
-  padding: var(--sp-8) var(--sp-5) var(--sp-6);
-  transition: var(--animation-primary) .1s;
-  transition-property: opacity, visibility;
-}
-
-@media screen and (min-width: 1024px) {
-  .drawer__header {
-    padding-inline: var(--sp-12)
-  }
-}
-
-@media screen and (min-width: 1536px) {
-  .drawer__header {
-    padding-block-end: var(--sp-8);
-    padding-block-start: var(--sp-10)
-  }
-}
-
-.drawer__close {
-  height: var(--sp-12);
-  width: var(--sp-12);
-  flex: 0 0 auto;
-  margin-inline-start: auto;
-}
-
-.drawer__close .icon+.icon {
-  transition: var(--animation-fast);
-  transition-property: opacity, visibility;
-}
-
-.drawer.loading .drawer__close {
-  --border-opacity: 0;
-}
-
-.drawer.loading .drawer__close .icon:first-child {
-  opacity: 0;
-}
-
-.drawer.loading .drawer__close .icon+.icon {
-  opacity: 1;
-  visibility: visible;
-  transition-delay: 0.1s;
-}
-
-.drawer__content {
-  overflow-x: hidden;
-  overflow-y: auto;
-  transition: var(--animation-primary) .1s;
-  transition-property: opacity, visibility;
-}
-
-.drawer__inner {
-  max-width: 36rem;
-  color: rgb(var(--color-foreground));
-  background-color: rgb(var(--color-background));
-  transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0);
-  will-change: transform;
-  contain: layout style paint;
-  backface-visibility: hidden;
-}
-
-.drawer--start .drawer__inner {
-  --tw-translate-x: -100%;
-  inset-inline-start: 0;
-}
-
-[data-rounded-block=round] .drawer--start .drawer__inner {
-  border-end-end-radius: var(--sp-8d5);
-  border-start-end-radius: var(--sp-8d5);
-}
-
-.drawer--end .drawer__inner {
-  --tw-translate-x: 100%;
-  inset-inline-end: 0;
-}
-
-[data-rounded-block=round] .drawer--end .drawer__inner {
-  border-end-start-radius: var(--sp-8d5);
-  border-start-start-radius: var(--sp-8d5);
-}
-
-.loaded .drawer__inner {
-  transition: transform .38s cubic-bezier(.32, .72, 0, 1);
-}
-
-.drawer[open] {
-  pointer-events: auto;
-}
-
-.drawer[active]>.drawer__inner {
-  --tw-translate-x: 0;
-  will-change: auto;
-}
-
+/* Mobile drawer styling for non-CartDrawer, non-MenuDrawer modals (PasswordModal, QuickView, VolumePricing, SearchDrawer, etc.) */
 @media screen and (max-width: 639px) {
-  .loaded .drawer__inner {
-    transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1) !important;
-  }
-
-  .drawer .overlay {
-    transition: opacity 0.18s linear !important;
-  }
-
-  .js .drawer .overlay {
-    background: none;
-  }
-
-  .js .drawer__header::before {
-    --tw-translate-x: -50%;
-    content: '';
-    background-color: rgb(var(--color-border));
-    border-radius: var(--rounded-full);
-    height: var(--sp-1);
-    width: var(--sp-12);
-    position: absolute;
-    inset-block-start: var(--sp-2d5);
-    inset-inline-start: 50%;
-    transform: translateX(calc(var(--tw-translate-x) * var(--transform-logical)));
-  }
-
-  .js .drawer__close {
+  .js .drawer:not(#CartDrawer, #MenuDrawer) .drawer__close {
     display: flex !important;
     pointer-events: auto !important;
     position: relative !important;
@@ -6267,7 +6115,7 @@ ol {
     touch-action: manipulation !important;
   }
 
-  .js .drawer .drawer__inner {
+  .js .drawer:not(#CartDrawer, #MenuDrawer) .drawer__inner {
     border-end-end-radius: 0;
     border-end-start-radius: 0;
     border-start-end-radius: var(--sp-5);
@@ -6279,27 +6127,140 @@ ol {
     inset-block-start: auto;
     inset-block-end: 0;
     transform: translate3d(0, 100%, 0);
-    will-change: transform;
   }
 
-  .js .drawer[active]>.drawer__inner {
+  .js .drawer:not(#CartDrawer, #MenuDrawer)[active]>.drawer__inner {
     transform: translate3d(0, 0, 0) !important;
   }
 
-  .js .drawer[active]>.overlay {
+  .js .drawer:not(#CartDrawer, #MenuDrawer)[active]>.overlay {
     background: none;
-    background-color: rgb(var(--color-overlay)/ 0.7);
+    background-color: rgb(var(--color-overlay) / 0.7);
     transform: translate3d(0, 0, 0) !important;
   }
 
-  .js .drawer .drawer__content,
-  .js .drawer .drawer__header {
+  .js .drawer:not(#CartDrawer, #MenuDrawer) :is(.drawer__content, .drawer__header) {
     opacity: 1;
     visibility: visible;
+  }
+
+  /* Header section z-index above MenuDrawer */
+  .shopify-section-group-header-group,
+  .shopify-section.header-section,
+  #shopify-section-header {
+    z-index: 40 !important;
+    position: relative !important;
+  }
+
+  /* MenuDrawer on mobile - start below announcement + header, never under them */
+  #MenuDrawer {
+    top: calc(var(--topbar-height, 0px) + max(var(--header-height), 3.75rem)) !important;
+    bottom: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    z-index: 30 !important;
+    overflow: visible !important;
+  }
+
+  #MenuDrawer .overlay {
+    top: 0 !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .loaded #MenuDrawer .drawer__inner,
+  .js #MenuDrawer .drawer__inner {
+    transition: transform 0.14s cubic-bezier(0, 0, 0.2, 1) !important;
+  }
+
+  .js #MenuDrawer.drawer--start .drawer__inner {
+    inset-block-start: 0 !important;
+    inset-block-end: auto !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: auto !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    width: 80% !important;
+    max-width: 20rem !important;
+    border-radius: 0 !important;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1) !important;
+    --tw-translate-x: -100% !important;
+    transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0) !important;
+    backface-visibility: hidden !important;
+  }
+
+  .js #MenuDrawer[active]>.drawer__inner {
+    --tw-translate-x: 0 !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  #MenuDrawer .drawer__inner> :is(.drawer__content, .drawer__header) {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: none !important;
+  }
+
+  /* Hide inner header on mobile — close sits outside the panel beside Home */
+  #MenuDrawer .drawer__header {
+    display: none !important;
+  }
+
+  #MenuDrawer .menu-drawer__close-outside {
+    display: flex !important;
+    position: absolute !important;
+    z-index: 20 !important;
+    inset-block-start: 0.35rem !important;
+    inset-inline-start: min(80%, 20rem) !important;
+    margin-inline-start: 0.5rem !important;
+    height: var(--sp-10) !important;
+    width: var(--sp-10) !important;
+    clip: auto !important;
+    overflow: visible !important;
+    background-color: rgb(var(--color-background)) !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18) !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  #MenuDrawer[active] .menu-drawer__close-outside,
+  #MenuDrawer[open] .menu-drawer__close-outside {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  #MenuDrawer .drawer__scrollable,
+  #MenuDrawer .drawer__menu {
+    padding-block-start: 0 !important;
+    max-height: none !important;
+  }
+
+  #MenuDrawer .drawer__menu-group {
+    padding-inline-start: 0 !important;
+    border-block-end: 1px solid rgb(var(--color-foreground) / 0.12) !important;
+  }
+
+  #MenuDrawer .drawer__menu-item {
+    padding-block: var(--sp-3) !important;
+    padding-inline: var(--sp-5) !important;
+    width: 100%;
+    transition: background-color 0.15s ease !important;
+  }
+
+  #MenuDrawer .drawer__menu-group > a:hover,
+  #MenuDrawer .drawer__menu-group > a:active,
+  #MenuDrawer .drawer__menu-group > details > summary:hover,
+  #MenuDrawer .drawer__menu-group > details > summary:active {
+    background-color: rgb(var(--color-foreground) / 0.07);
   }
 }
 
 @media screen and (min-width: 640px) {
+  #MenuDrawer .menu-drawer__close-outside {
+    display: none !important;
+  }
+
   .x-modal:not([hidden]) {
     display: flex;
     align-items: center;
@@ -10109,6 +10070,7 @@ details.active .drawer__promotions .mega-menu__item,
 }
 
 @media screen and (min-width: 1536px) {
+
   .card-grid--5,
   .collection.with-sidebar .card-grid--5 {
     --card-grid-per-row: 5;
@@ -10139,6 +10101,25 @@ details.active .drawer__promotions .mega-menu__item,
   border: var(--card-border-width) solid rgb(var(--color-foreground)/ var(--border-opacity));
   box-shadow: var(--shadow-horizontal-offset) var(--shadow-vertical-offset) rgb(var(--color-shadow)/ var(--shadow-opacity));
   height: 100%;
+  touch-action: pan-y;
+  contain: layout style;
+}
+
+@media screen and (max-width: 767px) {
+
+  .product-card,
+  .product-card__media,
+  .product-card a,
+  .product-card img {
+    touch-action: pan-y;
+  }
+
+  .product-card :is(.quick-add .button, .quick-view__button) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+  }
 }
 
 .product-card--card {
@@ -10165,6 +10146,22 @@ details.active .drawer__promotions .mega-menu__item,
   .product-card--card:hover {
     transform: translateY(calc(var(--sp-1) * -1));
     box-shadow: var(--shadow-horizontal-offset) calc(var(--shadow-vertical-offset) + var(--sp-2)) clamp(var(--sp-8), 3vw, var(--sp-14)) rgb(var(--color-shadow)/ max(var(--shadow-opacity), 0.12));
+  }
+}
+
+/* Smooth Secondary Image Hover Fade & Zoom Animation */
+.product-card .product-card__secondary-image {
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, transform;
+}
+
+@media screen and (min-width: 768px) and (pointer: fine) {
+  .product-card:hover .product-card__secondary-image[src] {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    pointer-events: auto !important;
   }
 }
 
@@ -10994,9 +10991,15 @@ details.active .drawer__promotions .mega-menu__item,
   opacity: 0 !important;
 }
 
-/* Ensure icons and text are visible - outline style, NOT filled */
-.quick-add .button .btn-text,
-.quick-view__button .btn-text {
+/* Hide text and icons when button is loading so only the loading spinner shows */
+.button:is(.loading, [aria-disabled="true"], [aria-disabled], .is-loading) :is(.btn-text, .icon, svg) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Ensure icons and text are visible when button is NOT loading - outline style, NOT filled */
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text {
   color: #333 !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -11004,10 +11007,10 @@ details.active .drawer__promotions .mega-menu__item,
   z-index: 2 !important;
 }
 
-.quick-add .button .btn-text .icon,
-.quick-add .button .icon,
-.quick-view__button .btn-text .icon,
-.quick-view__button .icon {
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text .icon,
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .icon,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text .icon,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .icon {
   color: #333 !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -11215,8 +11218,15 @@ html[dir="ltr"] .quick-view .drawer__close {
   opacity: 1;
 }
 
+.quick-view .product-media-gallery,
+.quick-view .product__media-container {
+  padding-inline: 16px !important;
+  padding-block: 8px 12px !important;
+}
+
 .quick-view .product__media-container .slider {
-  border-radius: 0;
+  border-radius: 14px !important;
+  overflow: hidden !important;
 }
 
 .quick-view .product__media-container .slider.magnify {
@@ -11224,11 +11234,30 @@ html[dir="ltr"] .quick-view .drawer__close {
 }
 
 .quick-view .product__media {
-  border-radius: 0;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background-color: #f8f8f8 !important;
 }
 
-.quick-view .product__media>img {
-  height: 100%;
+.quick-view .product__media>img,
+.quick-view .product__media img {
+  object-fit: contain !important;
+  max-height: 400px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+@media screen and (max-width: 767px) {
+
+  .quick-view .product-media-gallery,
+  .quick-view .product__media-container {
+    padding-inline: 12px !important;
+  }
+
+  .quick-view .product__media>img,
+  .quick-view .product__media img {
+    max-height: 320px !important;
+  }
 }
 
 .quick-view .product__thumbnails-list {

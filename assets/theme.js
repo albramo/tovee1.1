@@ -1896,6 +1896,10 @@ class ModalElement extends HTMLElement {
       this.overlay.style.willChange = 'opacity';
       if (this.gestureWrap) this.gestureWrap.style.willChange = 'transform';
     }
+    const inner = this.querySelector('.drawer__inner');
+    if (animate && inner) {
+      inner.style.willChange = 'transform';
+    }
     this.setAttribute('open', animate ? '' : 'immediate');
 
     if (this.shouldLock) {
@@ -1958,7 +1962,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 280);
+      setTimeout(finish, 200);
     });
   }
   hideTransition() {
@@ -1971,7 +1975,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 240);
+      setTimeout(finish, 190);
     });
   }
 
@@ -1989,7 +1993,7 @@ class ModalElement extends HTMLElement {
 
     if (this.hasAttribute('open')) {
       if (this.gestureConfig.layerHeight === null) {
-        this.gestureConfig.layerHeight = this.gestureWrap.getBoundingClientRect().height;
+        this.gestureConfig.layerHeight = this.gestureWrap.offsetHeight || 400;
       }
       this.gestureConfig.maxGestureDistance = this.gestureConfig.layerHeight - 50;
       this.gestureConfig.endPoint = this.gestureConfig.layerHeight * 0.3;
@@ -2009,7 +2013,7 @@ class ModalElement extends HTMLElement {
 
       if (this.hasAttribute('open')) {
         if (this.gestureConfig.layerHeight === null) {
-          this.gestureConfig.layerHeight = this.gestureWrap.getBoundingClientRect().height;
+          this.gestureConfig.layerHeight = this.gestureWrap.offsetHeight || 400;
         }
 
         this.gestureConfig.moveY = this.gesture.touchMoveY;
@@ -2600,30 +2604,27 @@ class ProductRecommendations extends HTMLElement {
     super();
     this._recInitialized = false;
 
-    // For cart drawer, start fetch as soon as drawer starts opening
+    // For cart drawer, defer recommendations fetch until AFTER drawer open animation completes
     if (this.closest('cart-drawer')) {
       const drawer = this.closest('cart-drawer');
       const scheduleInit = () => {
         if (this._recInitialized) return;
         this._recInitialized = true;
         const run = () => { try { this.init(); } catch(e){} };
-        requestAnimationFrame(() => setTimeout(run, 80));
-      };
-      if (drawer?.hasAttribute('open') || drawer?.hasAttribute('active')) {
-        scheduleInit();
-      } else {
-        if (drawer) {
-          drawer.addEventListener('drawer:afterShow', scheduleInit, { once: true });
-          const observer = new MutationObserver(() => {
-            if (drawer.hasAttribute('open') && !this._recInitialized) {
-              observer.disconnect();
-              scheduleInit();
-            }
-          });
-          observer.observe(drawer, { attributes: true, attributeFilter: ['open'] });
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => setTimeout(run, 300), { timeout: 1200 });
         } else {
-          Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
+          setTimeout(run, 400);
         }
+      };
+      if (drawer) {
+        drawer.addEventListener('drawer:afterShow', scheduleInit, { once: true });
+        // Fallback if drawer was already open
+        if (drawer.hasAttribute('active')) {
+          scheduleInit();
+        }
+      } else {
+        Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
       }
     } else {
       Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
@@ -2649,9 +2650,14 @@ class ProductRecommendations extends HTMLElement {
           if (recommendations && recommendations.innerHTML.trim().length) {
             const hasProducts = (recommendations.querySelector('product-complementary')?.children.length > 0) || (recommendations.querySelector('.horizontal-products')?.children.length > 0);
             if (hasProducts) {
+              this.style.opacity = '0';
+              this.style.transition = 'opacity 0.3s ease';
               this.innerHTML = recommendations.innerHTML;
               this.removeAttribute('hidden');
               this.style.display = '';
+              requestAnimationFrame(() => {
+                this.style.opacity = '1';
+              });
               this.dispatchEvent(new CustomEvent('recommendations:loaded'));
               const comp = this.querySelector('product-complementary');
               if (comp && comp.classList.contains('flickity') && !comp.carousel) {
