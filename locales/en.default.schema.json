@@ -3720,6 +3720,43 @@
         }
       }
     },
+    "promo-popup": {
+      "name": "Promo popup",
+      "settings": {
+        "size_header": "Popup size",
+        "popup_width": {
+          "label": "Popup width on desktop",
+          "info": "Maximum width of the popup card on desktop screens."
+        },
+        "popup_width_mobile": {
+          "label": "Popup width on mobile",
+          "info": "Width of the popup card relative to the screen width on mobile."
+        },
+        "image_height": {
+          "label": "Image height on desktop"
+        },
+        "image_height_mobile": {
+          "label": "Image height on mobile"
+        }
+      },
+      "blocks": {
+        "coupon": {
+          "name": "Coupon code",
+          "settings": {
+            "coupon_code": {
+              "label": "Coupon code",
+              "info": "Displayed to customers with a copy button."
+            },
+            "copy_label": {
+              "label": "Copy button label"
+            },
+            "copied_label": {
+              "label": "Copied confirmation text"
+            }
+          }
+        }
+      }
+    },
     "number-counter": {
       "name": "Number counter",
       "blocks": {
