@@ -1951,9 +1951,9 @@ class ModalElement extends HTMLElement {
   }
 
   showTransition() {
-    requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       if (this.hasAttribute('open')) this.setAttribute('active', '');
-    });
+    }));
     return new Promise((resolve) => {
       let done = false;
       const finish = () => { if (!done) { done = true; resolve(); } };
@@ -1962,7 +1962,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 200);
+      setTimeout(finish, 300);
     });
   }
   hideTransition() {
@@ -1975,7 +1975,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 190);
+      setTimeout(finish, 280);
     });
   }
 
@@ -2125,21 +2125,24 @@ class MenuDrawer extends DrawerElement {
 
   beforeShow() {
     super.beforeShow();
+    if (this._menuItemsAnim) return;
+    this._menuItemsAnim = true;
+    const reduced = theme.config.motionReduced;
     setTimeout(() => {
-      Motion.animate(this.menuItems, { transform: ['translateX(-20px)', 'translateX(0)'], opacity: [0, 1] }, { duration: 0.6, easing: [.075, .82, .165, 1], delay: Motion.stagger(0.1) }).finished.then(() => {
+      if (!this.open) return;
+      Motion.animate(this.menuItems, { transform: ['translateX(-12px)', 'translateX(0)'], opacity: [0, 1] }, { duration: reduced ? 0 : 0.22, easing: [.32, .72, 0, 1], delay: reduced ? 0 : Motion.stagger(0.03) }).finished.then(() => {
         this.menuItems.forEach((item) => item.removeAttribute('style'));
-      });
-    }, 300);
+        this._menuItemsAnim = false;
+      }).catch(() => { this._menuItemsAnim = false; });
+    }, reduced ? 0 : 60);
   }
 
   beforeHide() {
     super.beforeHide();
-
-    setTimeout(() => {
-      this.querySelectorAll('details[is=menu-details]').forEach((subMenu) => {
-        subMenu.onCloseButtonClick();
-      });
-    }, 300);
+    if (this._menuItemsAnim) { this._menuItemsAnim = false; }
+    this.querySelectorAll('details[is=menu-details]').forEach((subMenu) => {
+      subMenu.onCloseButtonClick();
+    });
   }
 }
 customElements.define('menu-drawer', MenuDrawer);
@@ -2247,11 +2250,11 @@ class MenuDetails extends HTMLDetailsElement {
     event.preventDefault();
     this.setAttribute('open', '');
 
-    setTimeout(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       this.parent.classList.add('active');
       this.classList.add('active');
       this.summary.setAttribute('aria-expanded', true);
-    }, 100);
+    }));
   }
 
   onCloseButtonClick() {
