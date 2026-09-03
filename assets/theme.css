@@ -10078,28 +10078,40 @@ details.active .drawer__promotions .mega-menu__item,
   }
 
   .card-grid--1 {
-    --card-grid-per-row: 1
+    --card-grid-per-row: 1;
   }
 
   .card-grid--2 {
-    --card-grid-per-row: 2
+    --card-grid-per-row: 2;
+  }
+
+  .card-grid--3 {
+    --card-grid-per-row: 3;
   }
 }
 
-@media screen and (min-width: 1280px) {
-  .card-grid--3 {
-    --card-grid-per-row: 3
+@media screen and (min-width: 990px) {
+  .card-grid--4 {
+    --card-grid-per-row: 4;
   }
 
-  .card-grid--4,
   .card-grid--5 {
-    --card-grid-per-row: 4
+    --card-grid-per-row: 5;
+  }
+
+  .collection.with-sidebar .card-grid--4 {
+    --card-grid-per-row: 4;
+  }
+
+  .collection.with-sidebar .card-grid--5 {
+    --card-grid-per-row: 4;
   }
 }
 
 @media screen and (min-width: 1536px) {
-  .card-grid--5 {
-    --card-grid-per-row: 5
+  .card-grid--5,
+  .collection.with-sidebar .card-grid--5 {
+    --card-grid-per-row: 5;
   }
 }
 
@@ -10111,18 +10123,6 @@ details.active .drawer__promotions .mega-menu__item,
 
 .card-grid .media-card__text {
   --tw-translate-x: 0;
-}
-
-@media screen and (min-width: 1280px) {
-  .collection.with-sidebar :is(.card-grid--4, .card-grid--5) {
-    --card-grid-per-row: 3;
-  }
-}
-
-@media screen and (min-width: 1536px) {
-  .collection.with-sidebar .card-grid--5 {
-    --card-grid-per-row: 4;
-  }
 }
 
 /*! card-product */
@@ -10950,10 +10950,159 @@ details.active .drawer__promotions .mega-menu__item,
   padding: 0;
   height: var(--sp-12);
   width: var(--sp-12);
-  background-color: rgb(var(--color-button-text));
+  background-color: rgba(255, 255, 255, 0.78);
   position: absolute;
   inset-block-start: var(--sp-4);
   inset-inline-end: var(--sp-4);
+}
+
+.quick-add .button,
+.quick-view__button {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+  background-image: none !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  color: #333 !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  overflow: visible !important;
+}
+
+.quick-view__button {
+  border-radius: 50% !important;
+}
+
+/* Kill the ::after pseudo border on these buttons */
+.quick-add .button::after,
+.quick-view__button::after {
+  display: none !important;
+  border: none !important;
+  content: none !important;
+}
+
+/* Kill the .btn-fill hover circle completely */
+.quick-add .button .btn-fill,
+.quick-add .button [data-fill],
+.quick-view__button .btn-fill,
+.quick-view__button [data-fill] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Ensure icons and text are visible - outline style, NOT filled */
+.quick-add .button .btn-text,
+.quick-view__button .btn-text {
+  color: #333 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quick-add .button .btn-text .icon,
+.quick-add .button .icon,
+.quick-view__button .btn-text .icon,
+.quick-view__button .icon {
+  color: #333 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quick-add .button .btn-text svg,
+.quick-add .button svg,
+.quick-view__button .btn-text svg,
+.quick-view__button svg {
+  color: #333 !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+}
+
+.quick-add .button:hover,
+.quick-view__button:hover {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+}
+
+@media screen and (max-width: 767px) {
+  .quick-view__button {
+    opacity: 1 !important;
+    visibility: visible !important;
+    inset-block-start: 8px !important;
+    inset-inline-end: 8px !important;
+    inset-inline-start: auto !important;
+    inset-block-end: auto !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 5 !important;
+    padding: 0 !important;
+  }
+
+  html[dir="rtl"] .quick-view__button {
+    right: auto !important;
+    left: 8px !important;
+  }
+
+  html[dir="ltr"] .quick-view__button {
+    left: auto !important;
+    right: 8px !important;
+  }
+
+  .quick-view__button .icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .quick-add .button {
+    border-radius: 50% !important;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .quick-add .button {
+    border-radius: 10px !important;
+    background-color: rgba(255, 255, 255, 0.45) !important;
+    background-image: none !important;
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    padding-inline: 26px !important;
+    padding-block: 13px !important;
+    min-height: 46px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #111 !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+
+  .quick-add .button .icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .quick-add .button:hover {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-1px) !important;
+  }
 }
 
 @media screen and (pointer: fine) {
@@ -11017,16 +11166,49 @@ details.active .drawer__promotions .mega-menu__item,
 
 .quick-view .drawer__header {
   border-block-end: 0;
-  padding-block-end: var(--sp-2);
+  padding-block: 10px;
+  min-height: 56px;
+  background-color: #ffffff;
 }
 
 .quick-view .drawer__close {
   position: absolute;
-  inset-block-start: var(--sp-7);
-  inset-inline-end: var(--sp-7);
-  background-color: rgb(var(--color-button-text));
-  transition: opacity var(--animation-primary);
-  transition-delay: 0.6s;
+  inset-block-start: 8px !important;
+  inset-inline-end: 16px !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14) !important;
+  z-index: 50 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity var(--animation-primary), transform 0.2s ease, background-color 0.2s ease;
+  transition-delay: 0.2s;
+}
+
+.quick-view .drawer__close:hover {
+  background-color: #f5f5f5 !important;
+  transform: scale(1.05);
+}
+
+html[dir="rtl"] .quick-view .drawer__close {
+  right: auto !important;
+  left: 16px !important;
+}
+
+html[dir="ltr"] .quick-view .drawer__close {
+  left: auto !important;
+  right: 16px !important;
+}
+
+.quick-view .drawer__close .icon {
+  width: 22px !important;
+  height: 22px !important;
 }
 
 .quick-view[active] .drawer__close {
